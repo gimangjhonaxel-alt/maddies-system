@@ -1,0 +1,44 @@
+/* Brand colors based on Maddie's signboard.
+   Variable names are kept so existing pages still work. */
+:root {
+    --maddies-cream: #FFF7FB;
+    --maddies-brown: #C2278F;
+    --maddies-caramel: #F2B632;
+    --maddies-pink: #FCE0EF;
+}
+
+body {
+    background-color: var(--maddies-cream);
+    color: #3b2a20;
+}
+
+.navbar-maddies {
+    background-color: var(--maddies-brown);
+}
+
+.navbar-maddies .navbar-brand,
+.navbar-maddies .nav-link {
+    color: #fff;
+}
+
+.navbar-maddies .nav-link:hover {
+    color: var(--maddies-caramel);
+}
+
+.btn-maddies {
+    background-color: var(--maddies-brown);
+    border-color: var(--maddies-brown);
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-maddies:hover {
+    background-color: #a01f75;
+    border-color: #a01f75;
+    color: #fff;
+}
+
+.footer-maddies {
+    background-color: var(--maddies-pink);
+    color: var(--maddies-brown);
+}

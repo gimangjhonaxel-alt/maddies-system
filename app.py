@@ -1,21 +1,18 @@
 from flask import Flask, render_template
+from flask_wtf.csrf import CSRFProtect
 import config
-from models.database import Database
+from routes.auth import auth_bp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.SECRET_KEY
-db = Database()
+
+csrf = CSRFProtect(app)
+app.register_blueprint(auth_bp)
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
-@app.route("/dbtest")
-def dbtest():
-    branches = db.fetch_all("SELECT id, name FROM branches")
-    return f"Connected! Branches found: {branches}"
 
 
 if __name__ == "__main__":

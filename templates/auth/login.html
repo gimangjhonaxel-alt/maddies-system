@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Log In{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="mb-3" style="color: var(--maddies-brown);">Log in</h3>
+
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), type="email") }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-maddies w-100") }}
+                </form>
+
+                <p class="text-center mt-3 mb-0">
+                    New to Maddie's?
+                    <a href="{{ url_for('auth.register') }}">Create an account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

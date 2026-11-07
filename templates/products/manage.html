@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Manage Products{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0" style="color: var(--maddies-brown);">Manage Products</h2>
+    <a href="{{ url_for('products.create') }}" class="btn btn-maddies">Add product</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.image %}
+                            <img src="{{ url_for('static', filename=product.image) }}"
+                                 alt="{{ product.name }}" class="rounded"
+                                 style="height: 48px; width: 48px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-muted small">None</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category_name }}</td>
+                    <td>₱{{ "%.2f"|format(product.price) }}</td>
+                    <td>
+                        {% if product.is_active %}
+                            <span class="badge bg-success">On menu</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Removed</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('products.edit', product_id=product.id) }}"
+                           class="btn btn-sm btn-outline-secondary">Edit</a>
+                        {% if session.get('role') == 'owner' %}
+                            {% if product.is_active %}
+                                <form method="POST"
+                                      action="{{ url_for('products.archive', product_id=product.id) }}"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Remove this product from the menu?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            {% else %}
+                                <form method="POST"
+                                      action="{{ url_for('products.restore', product_id=product.id) }}"
+                                      class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Restore</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-center text-muted">No products yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

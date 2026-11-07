@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Menu{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0" style="color: var(--maddies-brown);">Our Menu</h2>
+    {% if session.get('role') in ['owner', 'manager'] %}
+        <a href="{{ url_for('products.manage') }}" class="btn btn-maddies">Manage products</a>
+    {% endif %}
+</div>
+
+{% if grouped %}
+    {% for category, items in grouped.items() %}
+        <h4 class="mt-4 mb-3" style="color: var(--maddies-brown);">{{ category }}</h4>
+        <div class="row g-3">
+            {% for product in items %}
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if product.image %}
+                            <img src="{{ url_for('static', filename=product.image) }}"
+                                 alt="{{ product.name }}" class="card-img-top"
+                                 style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="height: 200px; background-color: var(--maddies-pink); color: var(--maddies-brown);">
+                                No photo yet
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">{{ product.description or "Freshly baked at Maddie's." }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3">
+                            <span class="fw-bold" style="color: var(--maddies-brown);">₱{{ "%.2f"|format(product.price) }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p class="text-muted">No products on the menu yet.</p>
+{% endif %}
+{% endblock %}

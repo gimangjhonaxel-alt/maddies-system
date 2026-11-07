@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Stock{% endblock %}
+
+{% block content %}
+<h2 class="mb-1" style="color: var(--maddies-brown);">Branch Stock</h2>
+<p class="text-muted">{{ branch.name }}</p>
+
+{% if branches %}
+    <ul class="nav nav-pills mb-3">
+        {% for b in branches %}
+            <li class="nav-item">
+                <a class="nav-link {% if b.id == branch.id %}active{% endif %}"
+                   style="{% if b.id == branch.id %}background-color: var(--maddies-brown);{% else %}color: var(--maddies-brown);{% endif %}"
+                   href="{{ url_for('stock.branch_stock', branch_id=b.id) }}">{{ b.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Quantity</th>
+                <th>Alert at</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                {% set form_id = "stock-" ~ item.product_id %}
+                <tr>
+                    <td>
+                        {% if item.image %}
+                            <img src="{{ url_for('static', filename=item.image) }}"
+                                 alt="{{ item.name }}" class="rounded"
+                                 style="height: 40px; width: 40px; object-fit: cover;">
+                        {% endif %}
+                    </td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category_name }}</td>
+                    <td>
+                        {% if item.is_low %}
+                            <span class="badge bg-danger">Low stock</span>
+                        {% else %}
+                            <span class="badge bg-success">OK</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <input type="number" name="quantity" form="{{ form_id }}"
+                               class="form-control form-control-sm" style="width: 90px;"
+                               min="0" max="100000" required value="{{ item.quantity }}">
+                    </td>
+                    <td>
+                        <input type="number" name="low_stock_threshold" form="{{ form_id }}"
+                               class="form-control form-control-sm" style="width: 90px;"
+                               min="0" max="10000" required value="{{ item.low_stock_threshold }}">
+                    </td>
+                    <td class="text-end">
+                        <form id="{{ form_id }}" method="POST"
+                              action="{{ url_for('stock.update', branch_id=branch.id, product_id=item.product_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                        <button type="submit" form="{{ form_id }}" class="btn btn-sm btn-maddies">Save</button>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted">No products in this branch yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

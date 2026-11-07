@@ -2,10 +2,10 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileSize
 from wtforms import (
     StringField, PasswordField, SubmitField,
-    TextAreaField, DecimalField, SelectField,
+    TextAreaField, DecimalField, SelectField, IntegerField,
 )
 from wtforms.validators import (
-    DataRequired, Email, Length, EqualTo, ValidationError,
+    DataRequired, InputRequired, Email, Length, EqualTo, ValidationError,
     NumberRange, Optional,
 )
 from models.user import User
@@ -72,3 +72,14 @@ class ProductForm(FlaskForm):
         ],
     )
     submit = SubmitField("Save product")
+
+
+class StockForm(FlaskForm):
+    quantity = IntegerField(
+        "Quantity",
+        validators=[InputRequired(), NumberRange(min=0, max=100000)],
+    )
+    low_stock_threshold = IntegerField(
+        "Low-stock alert at",
+        validators=[InputRequired(), NumberRange(min=0, max=10000)],
+    )

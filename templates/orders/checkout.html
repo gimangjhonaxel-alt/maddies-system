@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Checkout{% endblock %}
+
+{% block content %}
+<h2 class="mb-3" style="color: var(--maddies-brown);">Checkout</h2>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.branch_id.label(class="form-label") }}
+                        {{ form.branch_id(class="form-select" + (" is-invalid" if form.branch_id.errors else "")) }}
+                        {% for error in form.branch_id.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.customer_name.label(class="form-label") }}
+                        {{ form.customer_name(class="form-control" + (" is-invalid" if form.customer_name.errors else ""), maxlength=100) }}
+                        {% for error in form.customer_name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.customer_phone.label(class="form-label") }}
+                        {{ form.customer_phone(class="form-control" + (" is-invalid" if form.customer_phone.errors else ""), type="tel", maxlength=13, placeholder="09171234567") }}
+                        {% for error in form.customer_phone.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.customer_email.label(class="form-label") }}
+                        {{ form.customer_email(class="form-control" + (" is-invalid" if form.customer_email.errors else ""), type="email", maxlength=120) }}
+                        {% for error in form.customer_email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.fulfillment.label(class="form-label") }}
+                        {{ form.fulfillment(class="form-select") }}
+                    </div>
+
+                    <div class="mb-3 d-none" id="address-block">
+                        {{ form.delivery_address.label(class="form-label") }}
+                        {{ form.delivery_address(class="form-control" + (" is-invalid" if form.delivery_address.errors else ""), rows=2, maxlength=255) }}
+                        {% for error in form.delivery_address.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.payment_method.label(class="form-label") }}
+                        {{ form.payment_method(class="form-select") }}
+                    </div>
+
+                    <div class="mb-3 d-none" id="gcash-block">
+                        {{ form.gcash_reference.label(class="form-label") }}
+                        {{ form.gcash_reference(class="form-control" + (" is-invalid" if form.gcash_reference.errors else ""), maxlength=50) }}
+                        <div class="form-text">Send the payment to the branch's GCash, then enter the reference number here.</div>
+                        {% for error in form.gcash_reference.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-maddies w-100") }}
+                    <a href="{{ url_for('cart.view') }}" class="btn btn-link w-100 mt-2">Back to cart</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="mb-3" style="color: var(--maddies-brown);">Order summary</h5>
+                <ul class="list-group list-group-flush mb-3">
+                    {% for line in lines %}
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>{{ line.quantity }} &times; {{ line.product.name }}</span>
+                            <span>₱{{ "%.2f"|format(line.subtotal) }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total</span>
+                    <span style="color: var(--maddies-brown);">₱{{ "%.2f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Show the address box only for delivery, and the GCash box only for GCash.
+    var fulfillment = document.getElementById("fulfillment");
+    var payment = document.getElementById("payment_method");
+    var addressBlock = document.getElementById("address-block");
+    var gcashBlock = document.getElementById("gcash-block");
+
+    function updateFields() {
+        addressBlock.classList.toggle("d-none", fulfillment.value !== "delivery");
+        gcashBlock.classList.toggle("d-none", payment.value !== "gcash");
+    }
+
+    fulfillment.addEventListener("change", updateFields);
+    payment.addEventListener("change", updateFields);
+    updateFields();
+</script>
+{% endblock %}

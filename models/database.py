@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import mysql.connector
 import config
 
@@ -45,5 +47,25 @@ class Database:
             cursor.execute(query, params or ())
             conn.commit()
             return cursor.lastrowid
+        finally:
+            conn.close()
+
+    @contextmanager
+    def transaction(self):
+        """Run several queries as one unit: all succeed, or none are saved.
+
+        Usage:
+            with db.transaction() as cursor:
+                cursor.execute(...)
+                cursor.execute(...)
+        """
+        conn = self._connect()
+        try:
+            cursor = conn.cursor(dictionary=True)
+            yield cursor
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()

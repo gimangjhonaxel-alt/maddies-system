@@ -6,7 +6,7 @@ from wtforms import (
 )
 from wtforms.validators import (
     DataRequired, InputRequired, Email, Length, EqualTo, ValidationError,
-    NumberRange, Optional,
+    NumberRange, Optional, Regexp,
 )
 from models.user import User
 
@@ -83,3 +83,54 @@ class StockForm(FlaskForm):
         "Low-stock alert at",
         validators=[InputRequired(), NumberRange(min=0, max=10000)],
     )
+
+
+class CheckoutForm(FlaskForm):
+    branch_id = SelectField("Branch", coerce=int, validators=[DataRequired()])
+    customer_name = StringField(
+        "Full name",
+        validators=[DataRequired(), Length(min=2, max=100)],
+    )
+    customer_phone = StringField(
+        "Mobile number",
+        validators=[
+            DataRequired(),
+            Regexp(r"^(09\d{9}|\+639\d{9})$",
+                   message="Enter a valid mobile number, like 09171234567."),
+        ],
+    )
+    customer_email = StringField(
+        "Email (for your order confirmation)",
+        validators=[DataRequired(), Email(), Length(max=120)],
+    )
+    fulfillment = SelectField(
+        "Pickup or delivery",
+        choices=[("pickup", "Pickup at the branch"),
+                 ("delivery", "Delivery")],
+    )
+    delivery_address = TextAreaField(
+        "Delivery address",
+        validators=[Length(max=255)],
+    )
+    payment_method = SelectField(
+        "Payment method",
+        choices=[("cash", "Cash (pay on pickup or delivery)"),
+                 ("gcash", "GCash")],
+    )
+    gcash_reference = StringField(
+        "GCash reference number",
+        validators=[Length(max=50)],
+    )
+    submit = SubmitField("Place order")
+
+    def validate_delivery_address(self, field):
+        if self.fulfillment.data == "delivery" and not (field.data or "").strip():
+            raise ValidationError("Please enter your delivery address.")
+
+    def validate_gcash_reference(self, field):
+        if self.payment_method.data == "gcash":
+            value = (field.data or "").strip()
+            if len(value) < 6:
+                raise ValidationError(
+                    "Please enter your GCash reference number (at least 6 characters)."
+                )

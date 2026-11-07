@@ -32,7 +32,16 @@
                             <p class="card-text text-muted">{{ product.description or "Freshly baked at Maddie's." }}</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 pb-3">
-                            <span class="fw-bold" style="color: var(--maddies-brown);">₱{{ "%.2f"|format(product.price) }}</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold" style="color: var(--maddies-brown);">₱{{ "%.2f"|format(product.price) }}</span>
+                                <form method="POST" action="{{ url_for('cart.add', product_id=product.id) }}"
+                                      class="d-flex gap-2">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="number" name="quantity" value="1" min="1" max="20"
+                                           class="form-control form-control-sm" style="width: 70px;" required>
+                                    <button type="submit" class="btn btn-sm btn-maddies">Add to cart</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

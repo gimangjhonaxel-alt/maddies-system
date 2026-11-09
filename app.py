@@ -1,6 +1,7 @@
 from flask import Flask, render_template, session
 from flask_wtf.csrf import CSRFProtect
 import config
+from mailer import mail
 from models.cart import Cart
 from routes.auth import auth_bp
 from routes.products import products_bp
@@ -11,7 +12,16 @@ from routes.order_manage import order_manage_bp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.SECRET_KEY
+app.config.update(
+    MAIL_SERVER=config.MAIL_SERVER,
+    MAIL_PORT=config.MAIL_PORT,
+    MAIL_USE_TLS=config.MAIL_USE_TLS,
+    MAIL_USERNAME=config.MAIL_USERNAME,
+    MAIL_PASSWORD=config.MAIL_PASSWORD,
+    MAIL_DEFAULT_SENDER=config.MAIL_DEFAULT_SENDER,
+)
 
+mail.init_app(app)
 csrf = CSRFProtect(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(products_bp)

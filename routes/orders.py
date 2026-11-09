@@ -2,6 +2,7 @@ from flask import (
     Blueprint, render_template, redirect, url_for, flash, session, abort,
 )
 from forms import CheckoutForm
+from mailer import Mailer
 from models.cart import Cart
 from models.inventory import Inventory
 from models.order import Order, OutOfStockError
@@ -71,7 +72,15 @@ def checkout():
         else:
             cart.clear()
             _remember_order(order_id)
-            flash("Your order has been placed!", "success")
+
+            order = Order.find_by_id(order_id)
+            if Mailer.send_order_confirmation(order):
+                flash("Your order has been placed! "
+                      "We sent a confirmation to your email.", "success")
+            else:
+                flash("Your order has been placed! "
+                      "We couldn't send the confirmation email, "
+                      "so please keep your order number.", "warning")
             return redirect(url_for("orders.confirmation", order_id=order_id))
 
     return render_template(

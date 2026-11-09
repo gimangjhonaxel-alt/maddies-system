@@ -7,6 +7,7 @@ from routes.products import products_bp
 from routes.stock import stock_bp
 from routes.cart import cart_bp
 from routes.orders import orders_bp
+from routes.order_manage import order_manage_bp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.SECRET_KEY
@@ -17,6 +18,7 @@ app.register_blueprint(products_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(cart_bp)
 app.register_blueprint(orders_bp)
+app.register_blueprint(order_manage_bp)
 
 
 @app.context_processor

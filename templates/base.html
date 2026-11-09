@@ -26,6 +26,9 @@
                     </li>
                     {% if session.get('role') in ['owner', 'manager'] %}
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('order_manage.index') }}">Orders</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('products.manage') }}">Products</a>
                         </li>
                         <li class="nav-item">

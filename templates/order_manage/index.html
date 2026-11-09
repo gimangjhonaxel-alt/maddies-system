@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Orders{% endblock %}
+
+{% block content %}
+{% set badge_colors = {
+    'pending': 'warning text-dark',
+    'preparing': 'info text-dark',
+    'ready': 'primary',
+    'completed': 'success',
+    'cancelled': 'secondary'
+} %}
+
+<h2 class="mb-3" style="color: var(--maddies-brown);">Orders</h2>
+
+{% if branches %}
+    <ul class="nav nav-pills mb-2">
+        <li class="nav-item">
+            <a class="nav-link {% if not selected_branch %}active{% endif %}"
+               style="{% if not selected_branch %}background-color: var(--maddies-brown);{% else %}color: var(--maddies-brown);{% endif %}"
+               href="{{ url_for('order_manage.index', status=selected_status) }}">All branches</a>
+        </li>
+        {% for b in branches %}
+            <li class="nav-item">
+                <a class="nav-link {% if b.id == selected_branch %}active{% endif %}"
+                   style="{% if b.id == selected_branch %}background-color: var(--maddies-brown);{% else %}color: var(--maddies-brown);{% endif %}"
+                   href="{{ url_for('order_manage.index', branch=b.id, status=selected_status) }}">{{ b.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if not selected_status %}active bg-dark{% else %}text-dark{% endif %}"
+           href="{{ url_for('order_manage.index', branch=selected_branch) }}">Any status</a>
+    </li>
+    {% for s in statuses %}
+        <li class="nav-item">
+            <a class="nav-link {% if s == selected_status %}active bg-dark{% else %}text-dark{% endif %}"
+               href="{{ url_for('order_manage.index', branch=selected_branch, status=s) }}">{{ s|capitalize }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Placed</th>
+                <th>Customer</th>
+                <th>Branch</th>
+                <th>Type</th>
+                <th>Payment</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td class="fw-bold">{{ order.order_number }}</td>
+                    <td>{{ order.created_at.strftime('%b %d, %I:%M %p') }}</td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.branch_name }}</td>
+                    <td>{{ order.fulfillment|capitalize }}</td>
+                    <td>
+                        {{ 'Cash' if order.payment_method == 'cash' else 'GCash' }}
+                        <span class="badge {{ 'bg-success' if order.payment_status == 'paid' else 'bg-danger' }}">
+                            {{ (order.payment_status or 'unpaid')|capitalize }}
+                        </span>
+                    </td>
+                    <td>₱{{ "%.2f"|format(order.total) }}</td>
+                    <td>
+                        <span class="badge bg-{{ badge_colors.get(order.status, 'secondary') }}">
+                            {{ (order.status or 'pending')|capitalize }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('order_manage.detail', order_id=order.id) }}"
+                           class="btn btn-sm btn-outline-secondary">Open</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="9" class="text-center text-muted">No orders found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

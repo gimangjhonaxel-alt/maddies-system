@@ -126,9 +126,39 @@ class Order:
 
     @staticmethod
     def update_status(order_id, status, payment_status):
+        """Change an order's status.
+        Cancelling an order puts its items back into the branch's stock.
+        A cancelled order is final and can't be changed again."""
         if status not in STATUSES or payment_status not in PAYMENT_STATUSES:
             raise ValueError("Invalid status.")
-        db.execute(
-            "UPDATE orders SET status = %s, payment_status = %s WHERE id = %s",
-            (status, payment_status, order_id),
-        )
+
+        with db.transaction() as cursor:
+            cursor.execute(
+                "SELECT branch_id, status FROM orders WHERE id = %s FOR UPDATE",
+                (order_id,),
+            )
+            order = cursor.fetchone()
+            if order is None:
+                raise ValueError("Order not found.")
+            if order["status"] == "cancelled":
+                raise ValueError("A cancelled order can't be changed.")
+
+            if status == "cancelled":
+                cursor.execute(
+                    "SELECT product_id, quantity FROM order_items "
+                    "WHERE order_id = %s",
+                    (order_id,),
+                )
+                for item in cursor.fetchall():
+                    cursor.execute(
+                        "UPDATE branch_stock SET quantity = quantity + %s "
+                        "WHERE branch_id = %s AND product_id = %s",
+                        (item["quantity"], order["branch_id"],
+                         item["product_id"]),
+                    )
+
+            cursor.execute(
+                "UPDATE orders SET status = %s, payment_status = %s "
+                "WHERE id = %s",
+                (status, payment_status, order_id),
+            )

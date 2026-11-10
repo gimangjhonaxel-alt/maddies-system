@@ -28,6 +28,30 @@ class User:
     def can_view_all_sales(self):
         return False
 
+    # ---------- profile changes ----------
+    def update_details(self, name, email):
+        db.execute(
+            "UPDATE users SET name = %s, email = %s WHERE id = %s",
+            (name, email, self.id),
+        )
+        self.name = name
+        self.email = email
+
+    def change_password(self, new_password):
+        hashed = generate_password_hash(new_password)
+        db.execute(
+            "UPDATE users SET password_hash = %s WHERE id = %s",
+            (hashed, self.id),
+        )
+        self._password_hash = hashed
+
+    def set_photo(self, photo_path):
+        db.execute(
+            "UPDATE users SET profile_photo = %s WHERE id = %s",
+            (photo_path, self.id),
+        )
+        self.profile_photo = photo_path
+
     # ---------- database ----------
     @staticmethod
     def _from_row(row):
@@ -47,6 +71,12 @@ class User:
     def find_by_id(user_id):
         row = db.fetch_one("SELECT * FROM users WHERE id = %s", (user_id,))
         return User._from_row(row)
+
+    @staticmethod
+    def email_taken(email, exclude_id=None):
+        """True if another account already uses this email."""
+        row = db.fetch_one("SELECT id FROM users WHERE email = %s", (email,))
+        return row is not None and row["id"] != exclude_id
 
     @staticmethod
     def register_customer(name, email, password):

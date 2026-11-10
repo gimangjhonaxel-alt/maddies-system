@@ -11,13 +11,20 @@ from wtforms.validators import (
 from models.user import User
 
 
+def _strip(value):
+    """Trim stray spaces, which often come from copy-pasting."""
+    return value.strip() if isinstance(value, str) else value
+
+
 class RegisterForm(FlaskForm):
     name = StringField(
         "Full name",
+        filters=[_strip],
         validators=[DataRequired(), Length(min=2, max=100)],
     )
     email = StringField(
         "Email",
+        filters=[_strip],
         validators=[DataRequired(), Email(), Length(max=120)],
     )
     password = PasswordField(
@@ -39,15 +46,64 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField(
         "Email",
+        filters=[_strip],
         validators=[DataRequired(), Email()],
     )
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Log in")
 
 
+class ProfileForm(FlaskForm):
+    name = StringField(
+        "Full name",
+        filters=[_strip],
+        validators=[DataRequired(), Length(min=2, max=100)],
+    )
+    email = StringField(
+        "Email",
+        filters=[_strip],
+        validators=[DataRequired(), Email(), Length(max=120)],
+    )
+    photo = FileField(
+        "Profile photo (optional)",
+        validators=[
+            FileAllowed(["jpg", "jpeg", "png", "webp"],
+                        "Only JPG, PNG, or WEBP images are allowed."),
+            FileSize(max_size=2 * 1024 * 1024,
+                     message="The image must be 2 MB or smaller."),
+        ],
+    )
+    submit = SubmitField("Save profile")
+
+    def __init__(self, user_id=None, **kwargs):
+        super().__init__(**kwargs)
+        self._user_id = user_id
+
+    def validate_email(self, field):
+        if User.email_taken(field.data.strip().lower(), self._user_id):
+            raise ValidationError("That email is already used by another account.")
+
+
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField(
+        "Current password", validators=[DataRequired()]
+    )
+    new_password = PasswordField(
+        "New password",
+        validators=[DataRequired(), Length(min=8, max=64)],
+    )
+    confirm_new_password = PasswordField(
+        "Confirm new password",
+        validators=[DataRequired(),
+                    EqualTo("new_password", message="Passwords must match.")],
+    )
+    submit = SubmitField("Change password")
+
+
 class ProductForm(FlaskForm):
     name = StringField(
         "Product name",
+        filters=[_strip],
         validators=[DataRequired(), Length(min=2, max=120)],
     )
     category_id = SelectField("Category", coerce=int, validators=[DataRequired()])
@@ -89,10 +145,12 @@ class CheckoutForm(FlaskForm):
     branch_id = SelectField("Branch", coerce=int, validators=[DataRequired()])
     customer_name = StringField(
         "Full name",
+        filters=[_strip],
         validators=[DataRequired(), Length(min=2, max=100)],
     )
     customer_phone = StringField(
         "Mobile number",
+        filters=[_strip],
         validators=[
             DataRequired(),
             Regexp(r"^(09\d{9}|\+639\d{9})$",
@@ -101,6 +159,7 @@ class CheckoutForm(FlaskForm):
     )
     customer_email = StringField(
         "Email (for your order confirmation)",
+        filters=[_strip],
         validators=[DataRequired(), Email(), Length(max=120)],
     )
     fulfillment = SelectField(
@@ -119,6 +178,7 @@ class CheckoutForm(FlaskForm):
     )
     gcash_reference = StringField(
         "GCash reference number",
+        filters=[_strip],
         validators=[Length(max=50)],
     )
     submit = SubmitField("Place order")

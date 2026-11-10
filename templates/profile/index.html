@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | My Profile{% endblock %}
+
+{% block content %}
+<h2 class="mb-3" style="color: var(--maddies-brown);">My Profile</h2>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-3" style="color: var(--maddies-brown);">Your details</h5>
+
+                <div class="text-center mb-3">
+                    {% if user.profile_photo %}
+                        <img src="{{ url_for('static', filename=user.profile_photo) }}"
+                             alt="Your profile photo" class="rounded-circle"
+                             style="height: 110px; width: 110px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center fs-1 fw-bold"
+                             style="height: 110px; width: 110px; background-color: var(--maddies-pink); color: var(--maddies-brown);">
+                            {{ user.name[0]|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="text-muted small mt-2">{{ user.role|capitalize }}</div>
+                </div>
+
+                <form method="POST" action="{{ url_for('profile.index') }}"
+                      enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), maxlength=100) }}
+                        {% for error in form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), type="email", maxlength=120) }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.photo.label(class="form-label") }}
+                        {{ form.photo(class="form-control" + (" is-invalid" if form.photo.errors else ""), accept=".jpg,.jpeg,.png,.webp") }}
+                        <div class="form-text">JPG, PNG, or WEBP, up to 2 MB.</div>
+                        {% for error in form.photo.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-maddies w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-3" style="color: var(--maddies-brown);">Change password</h5>
+
+                <form method="POST" action="{{ url_for('profile.change_password') }}">
+                    {{ password_form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ password_form.current_password.label(class="form-label") }}
+                        {{ password_form.current_password(class="form-control" + (" is-invalid" if password_form.current_password.errors else "")) }}
+                        {% for error in password_form.current_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ password_form.new_password.label(class="form-label") }}
+                        {{ password_form.new_password(class="form-control" + (" is-invalid" if password_form.new_password.errors else ""), minlength=8, maxlength=64) }}
+                        <div class="form-text">At least 8 characters.</div>
+                        {% for error in password_form.new_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ password_form.confirm_new_password.label(class="form-label") }}
+                        {{ password_form.confirm_new_password(class="form-control" + (" is-invalid" if password_form.confirm_new_password.errors else "")) }}
+                        {% for error in password_form.confirm_new_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ password_form.submit(class="btn btn-maddies w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

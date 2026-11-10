@@ -10,8 +10,12 @@
         from your nearest Maddie's branch.
     </p>
     <div class="mt-4">
-        <a href="#" class="btn btn-maddies btn-lg me-2">Order Now</a>
-        <a href="#" class="btn btn-outline-secondary btn-lg">Log In</a>
+        <a href="{{ url_for('products.menu') }}" class="btn btn-maddies btn-lg me-2">Order Now</a>
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary btn-lg">My Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">Log In</a>
+        {% endif %}
     </div>
 </section>
 

@@ -10,6 +10,7 @@ from routes.cart import cart_bp
 from routes.orders import orders_bp
 from routes.order_manage import order_manage_bp
 from routes.dashboard import dashboard_bp
+from routes.profile import profile_bp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.SECRET_KEY
@@ -32,6 +33,7 @@ app.register_blueprint(cart_bp)
 app.register_blueprint(orders_bp)
 app.register_blueprint(order_manage_bp)
 app.register_blueprint(dashboard_bp)
+app.register_blueprint(profile_bp)
 
 
 @app.context_processor

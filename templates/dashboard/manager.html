@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Branch Dashboard{% endblock %}
+
+{% block content %}
+{% set badge_colors = {
+    'pending': 'warning text-dark',
+    'preparing': 'info text-dark',
+    'ready': 'primary',
+    'completed': 'success',
+    'cancelled': 'secondary'
+} %}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <h2 class="mb-0" style="color: var(--maddies-brown);">Branch Dashboard</h2>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('order_manage.index') }}" class="btn btn-sm btn-maddies">Orders</a>
+        <a href="{{ url_for('stock.index') }}" class="btn btn-sm btn-outline-secondary">Stock</a>
+    </div>
+</div>
+<p class="text-muted">{{ branch.name }}</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Branch sales</div>
+            <div class="fs-4 fw-bold" style="color: var(--maddies-brown);">₱{{ "%.2f"|format(totals.sales) }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Total orders</div>
+            <div class="fs-4 fw-bold">{{ totals.total_orders }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Pending orders</div>
+            <div class="fs-4 fw-bold">{{ totals.pending_orders|int }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Orders today</div>
+            <div class="fs-4 fw-bold">{{ totals.today_orders|int }}</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <h5 class="mb-3" style="color: var(--maddies-brown);">Latest orders</h5>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                        {% for o in recent_orders %}
+                            <tr>
+                                <td class="fw-bold">{{ o.order_number }}</td>
+                                <td>{{ o.customer_name }}</td>
+                                <td>₱{{ "%.2f"|format(o.total) }}</td>
+                                <td>
+                                    <span class="badge bg-{{ badge_colors.get(o.status, 'secondary') }}">
+                                        {{ (o.status or 'pending')|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('order_manage.detail', order_id=o.id) }}"
+                                       class="btn btn-sm btn-outline-secondary">Open</a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="text-muted text-center">No orders yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <h5 class="mb-3" style="color: var(--maddies-brown);">Top-selling products</h5>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr><th>Product</th><th class="text-end">Sold</th></tr></thead>
+                    <tbody>
+                        {% for p in top_products %}
+                            <tr><td>{{ p.name }}</td><td class="text-end">{{ p.sold|int }}</td></tr>
+                        {% else %}
+                            <tr><td colspan="2" class="text-muted text-center">No sales yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="col-12">
+        <div class="card shadow-sm"><div class="card-body">
+            <h5 class="mb-3" style="color: var(--maddies-brown);">Low-stock alerts</h5>
+            {% if low_stock %}
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Product</th><th>Quantity</th><th>Alert at</th></tr></thead>
+                        <tbody>
+                            {% for row in low_stock %}
+                                <tr>
+                                    <td>{{ row.name }}</td>
+                                    <td><span class="badge bg-danger">{{ row.quantity }}</span></td>
+                                    <td>{{ row.low_stock_threshold }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">Everything is stocked above its alert level.</p>
+            {% endif %}
+        </div></div>
+    </div>
+</div>
+{% endblock %}

@@ -63,9 +63,16 @@
                     </div>
 
                     <div class="mb-3 d-none" id="gcash-block">
+                        <div class="text-center mb-3">
+                            <img src="{{ url_for('static', filename='uploads/gcash-qr.jpg') }}"
+                                 alt="GCash QR code" class="img-fluid border rounded p-2 bg-white"
+                                 style="max-width: 350px;" onerror="this.style.display='none'">
+                            <div class="fw-bold mt-2" style="color: var(--maddies-brown);">Amount to pay: ₱{{ "%.2f"|format(total) }}</div>
+                            <div class="form-text">Scan the QR code with GCash, then enter the reference number below.</div>
+                        </div>
                         {{ form.gcash_reference.label(class="form-label") }}
                         {{ form.gcash_reference(class="form-control" + (" is-invalid" if form.gcash_reference.errors else ""), maxlength=50) }}
-                        <div class="form-text">Send the payment to the branch's GCash, then enter the reference number here.</div>
+                        <div class="form-text">After sending the payment, enter the reference number here.</div>
                         {% for error in form.gcash_reference.errors %}
                             <div class="invalid-feedback">{{ error }}</div>
                         {% endfor %}

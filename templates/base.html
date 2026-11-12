@@ -31,7 +31,7 @@
                     </li>
                     {% if session.get('user_id') %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard.index') }}">Dashboard</a>
+                            <a class="nav-link" href="{{ url_for('dashboard.index') }}">{{ 'My Orders' if session.get('role') == 'customer' else 'Dashboard' }}</a>
                         </li>
                     {% endif %}
                     {% if session.get('role') in ['owner', 'manager'] %}

@@ -39,7 +39,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Create account")
 
     def validate_email(self, field):
-        if User.find_by_email(field.data.strip().lower()):
+        if User.find_by_email(field.data.strip().lower()) and User.find_by_email(field.data.strip().lower()).email_verified:
             raise ValidationError("That email is already registered.")
 
 
@@ -194,3 +194,16 @@ class CheckoutForm(FlaskForm):
                 raise ValidationError(
                     "Please enter your GCash reference number (at least 6 characters)."
                 )
+                
+
+
+class VerifyForm(FlaskForm):
+    code = StringField(
+        "6-digit code",
+        filters=[_strip],
+        validators=[
+            DataRequired(),
+            Regexp(r"^\d{6}$", message="Enter the 6-digit code from your email."),
+        ],
+    )
+    submit = SubmitField("Verify email")

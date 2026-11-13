@@ -9,6 +9,28 @@ class Mailer:
     A failed email is logged and never stops an order from going through."""
 
     @staticmethod
+    def send_verification_code(name, email, code):
+        body = (
+            f"Hi {name},\n\n"
+            f"Welcome to Maddie's! Your verification code is:\n\n"
+            f"    {code}\n\n"
+            f"It expires in 15 minutes. "
+            f"If you didn't create an account, you can ignore this email.\n\n"
+            f"- Maddie's Bakeshop"
+        )
+        message = Message(
+            subject="Your Maddie's verification code",
+            recipients=[email],
+            body=body,
+        )
+        try:
+            mail.send(message)
+            return True
+        except Exception as error:
+            current_app.logger.error("Could not send verification email: %s", error)
+            return False
+
+    @staticmethod
     def send_order_confirmation(order):
         item_lines = "\n".join(
             f"  {item['quantity']} x {item['name']} - PHP {item['subtotal']:.2f}"

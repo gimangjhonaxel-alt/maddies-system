@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Maddie's | Verify Email{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-3">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Maddie's logo"
+                         class="rounded-circle" style="height: 80px; width: 80px; object-fit: cover;">
+                </div>
+                <h3 class="mb-2 text-center" style="color: var(--maddies-brown);">Verify your email</h3>
+                <p class="text-center text-muted">
+                    We sent a 6-digit code to <strong>{{ email }}</strong>.
+                    It expires in 15 minutes.
+                </p>
+
+                <form method="POST" action="{{ url_for('auth.verify') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.code.label(class="form-label") }}
+                        {{ form.code(class="form-control form-control-lg text-center" + (" is-invalid" if form.code.errors else ""), maxlength=6, inputmode="numeric", autocomplete="one-time-code", placeholder="123456") }}
+                        {% for error in form.code.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-maddies w-100") }}
+                </form>
+
+                <hr>
+
+                <form method="POST" action="{{ url_for('auth.resend_code') }}" class="text-center">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <span class="text-muted small">Didn't get it? Check your spam folder, or</span>
+                    <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">resend the code</button>
+                    {% if wait %}
+                        <div class="form-text">You can ask for a new code in about {{ wait }} seconds.</div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
